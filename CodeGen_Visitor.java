@@ -1,7 +1,6 @@
 import syntaxtree.*;
 import java.util.HashMap;
 
-import org.omg.CORBA.SystemException;
 
 /*
  * CodeGen_Visitor class
@@ -19,7 +18,7 @@ import org.omg.CORBA.SystemException;
  * 2. varMap: to keep track of the local variables in a method
  *     this will map variable names to their negative offsets from the base pointer
  * 3. paramMap: to keep track of the parameters of a method
- *     this will map parameter names to their positive offsets from the base pointer
+ *     this will map parameter names to their negative offsets from the base pointer
  * 
  * We also need some auxiliary variables to keep track of 
  * 1. currClass - the current class
@@ -54,9 +53,16 @@ public class CodeGen_Visitor implements Visitor {
         // not in MiniC
         Exp e1=node.e1;
         Exp e2=node.e2;
-        node.e1.accept(this, data);
-        node.e2.accept(this, data);
-        return "# AND not implemented\n"; 
+        String e1code = (String) node.e1.accept(this, data);
+        String e2code = (String) node.e2.accept(this, data);
+
+        String resultcode = e1code + e2code
+                            + "#and:" +node.accept(ppVisitor,0)+"\n"
+                            + "popq %rax\n"
+                            + "popq %rcx\n"
+                            + "mulq %rcx %rax\n"
+                            + "pushq  %rax";
+        return resultcode; 
     } 
 
     public Object visit(ArrayAssign node, Object data){ 
@@ -247,7 +253,7 @@ public class CodeGen_Visitor implements Visitor {
 
     public Object visit(False node, Object data){ 
         // not implemented yet
-        return "# False not implemented ";
+        return "pushq $0\n";
     } 
 
     public Object visit(Formal node, Object data){ 
@@ -698,9 +704,14 @@ public class CodeGen_Visitor implements Visitor {
     public Object visit(Not node, Object data){ 
         // not in MiniC
         Exp e=node.e;
-        node.e.accept(this, data);
+        String eCode = (String) node.e.accept(this, data);
 
-        return "#Not not implemented\n"; 
+        return eCode +
+               "# not:"+ node.accept(ppVisitor,0)+ "\n"+
+               "popq %rax\n"+
+               "negq %rax\n"+
+               "addq $1, %rax\n" +
+               "pushq %rax\n" ; 
     }
 
 
@@ -801,7 +812,8 @@ public class CodeGen_Visitor implements Visitor {
 
     public Object visit(True node, Object data){ 
         // not in MiniC
-        return "# True not implemented\n"; 
+        
+        return "pushq $1\n"; 
     }
 
 
@@ -838,10 +850,29 @@ public class CodeGen_Visitor implements Visitor {
         // not in MiniC
         Exp e=node.e;
         Statement s=node.s;
-        node.e.accept(this, data);
-        node.s.accept(this, data);
+        String ecode = (String) node.e.accept(this, data);
+        String scode = (String) node.s.accept(this, data);
 
-        return "# while not implemented\n"; 
+
+        String label1 = "L"+labelNum;
+        labelNum += 1;
+
+        String label2 = "L"+labelNum;
+        labelNum += 1;
+ 
+
+        String result = "# while\n" +
+                        label1 + ":\n"+
+                        ecode + 
+                        "popq %rax\n" +
+                        "cmpq	$1, %rax\n" +
+                        "jne "+label2+"\n" +
+                        scode +
+                        "jmp "+label1+"\n" +
+                        label2 + ":\n";
+        
+
+        return result; 
     }
 
 }
