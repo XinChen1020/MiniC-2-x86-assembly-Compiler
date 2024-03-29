@@ -861,7 +861,7 @@ public class CodeGen_Visitor implements Visitor {
         labelNum += 1;
  
 
-        String result = "# while\n" +
+        String result = "# while: " + node.accept(ppVisitor,0)+"\n" +
                         label1 + ":\n"+
                         ecode + 
                         "popq %rax\n" +
