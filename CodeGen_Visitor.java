@@ -3,6 +3,12 @@ import java.util.HashMap;
 
 
 /*
+ * Video 1:https://brandeis.zoom.us/rec/share/DuhkCtewos3QgU8SUJpxNo2rL7aO7yKAS065cMb-gpvZmRAh2sT6RkWuEwYZpabD.EYZHg414sU9ZO5No?startTime=1711729019000
+ * Video 2:https://brandeis.zoom.us/rec/share/DuhkCtewos3QgU8SUJpxNo2rL7aO7yKAS065cMb-gpvZmRAh2sT6RkWuEwYZpabD.EYZHg414sU9ZO5No?startTime=1711729494000
+ * Team: Xin Chen
+ */
+
+/*
  * CodeGen_Visitor class
  * This class implements a naive code generation for the MiniJava language.
  * The parameters are all passed on the stack and all local variables are stored on the stack.
@@ -57,11 +63,11 @@ public class CodeGen_Visitor implements Visitor {
         String e2code = (String) node.e2.accept(this, data);
 
         String resultcode = e1code + e2code
-                            + "#and:" +node.accept(ppVisitor,0)+"\n"
+                            + "# and:" +node.accept(ppVisitor,0)+"\n"
                             + "popq %rax\n"
                             + "popq %rcx\n"
-                            + "mulq %rcx %rax\n"
-                            + "pushq  %rax";
+                            + "imulq %rcx, %rax\n"
+                            + "pushq  %rax\n";
         return resultcode; 
     } 
 
