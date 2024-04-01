@@ -92,7 +92,8 @@ public class CodeGen_Visitor implements Visitor {
             + "popq %rax\n"
             + "popq %rcx\n"
             + "incq %rcx\n"
-            + "movq %rax,  ("+location+", %rcx, $8)\n";
+            + "movq " + location + ", %rdx\n"      
+            + "movq %rax,  (%rdx, %rcx, 8)\n";
         
         return result;
     } 
@@ -122,7 +123,7 @@ public class CodeGen_Visitor implements Visitor {
                         e2code + 
                         "popq %rcx\n" +
                         "popq %rax\n" +
-                        "movq (%rax,%rcx,$8), %rax\n" +
+                        "movq (%rax,%rcx,8), %rax\n" +
                         "pushq %rax\n";
 
         return result; 
@@ -687,7 +688,6 @@ public class CodeGen_Visitor implements Visitor {
 
     public Object visit(MethodDeclList node, Object data){ 
         // not implemented
-        System.out.println("test");
 
         MethodDecl m=node.m;
         MethodDeclList mlist=node.mlist;
@@ -728,14 +728,13 @@ public class CodeGen_Visitor implements Visitor {
 
         String result = sizeCode + 
                         "# new array:"+node.accept(ppVisitor,0)+"\n"+
-                        "popq %r10\n" + 
-                        "movq %r10, %rdi\n"+
-                        "popq %rdi\n" + 
-                        "incq %rdi\n"+
-                        "shlq %3, %rdi\n"+
-                        "callq -malloc\n" +
-                        "movq %r10, (%rdx)\n" +
-                        "pushq %rdx\n";
+                        "popq %r8\n" + 
+                        "movq %r8, %rax\n"+
+                        "incq %rax\n"+
+                        "shlq $3, %rdx\n"+
+                        "callq _malloc\n" +
+                        "movq %r8, (%rax)\n" +
+                        "pushq %rax\n";
 
         return result;
     }
