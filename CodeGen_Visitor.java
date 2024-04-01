@@ -76,26 +76,56 @@ public class CodeGen_Visitor implements Visitor {
         Identifier i = node.i;
         Exp e1=node.e1;
         Exp e2=node.e2;
-        node.i.accept(this,data);
-        node.e1.accept(this, data);
-        node.e2.accept(this, data);
-        return "# ArrayAssign not implemented\n";
+
+        String e1code = (String) node.e1.accept(this, data);
+        String e2code = (String) node.e2.accept(this, data);
+
+        String varName = currClass+"_"+currMethod+"_"+i.s;
+        String location = varMap.get(varName);
+        
+
+        String result = 
+            
+            e1code
+            + e2code
+            + "#"+node.accept(ppVisitor,0)+"\n"
+            + "popq %rax\n"
+            + "popq %rcx\n"
+            + "incq %rcx\n"
+            + "movq %rax,  ("+location+", %rcx, $8)\n";
+        
+        return result;
     } 
 
     public Object visit(ArrayLength node, Object data){ 
         // not in MiniC
         Exp e=node.e;
-        node.e.accept(this, data);
-        return "#Array Length not implemented\n"; 
+        String ecode = (String) node.e.accept(this, data);
+
+        String result = ecode + 
+                        "#"+node.accept(ppVisitor,0)+"\n" + 
+                        "popq %rax\n" +
+                        "movq (%rax,,) %r8\n" +
+                        "pushq %r8\n";
+        return result; 
     } 
 
     public Object visit(ArrayLookup node, Object data){ 
         // not in MiniC
         Exp e1=node.e1;
         Exp e2=node.e2;
-        node.e1.accept(this, data);
-        node.e2.accept(this, data);
-        return "#ArrayLookup not implemented\n"; 
+        String e1code = (String) node.e1.accept(this, data);
+        String e2code = (String) node.e2.accept(this, data);
+        
+        String result = "#"+node.accept(ppVisitor,0)+"\n" +
+                        e1code +
+                        e2code + 
+                        "popq %rcx\n" +
+                        "popq %rax\n" +
+                        "movq (%rax,%rcx,$8), %rax\n" +
+                        "pushq %rax\n";
+
+        return result; 
     } 
 
     public Object visit(Assign node, Object data){ 
@@ -199,6 +229,7 @@ public class CodeGen_Visitor implements Visitor {
         Identifier i = node.i;
         VarDeclList v=node.v;
         MethodDeclList m=node.m;
+        
 
         String theLabel = i.s + "_"+(labelNum++);
         labelMap.put(i.s, theLabel);
@@ -656,10 +687,11 @@ public class CodeGen_Visitor implements Visitor {
 
     public Object visit(MethodDeclList node, Object data){ 
         // not implemented
+        System.out.println("test");
+
         MethodDecl m=node.m;
         MethodDeclList mlist=node.mlist;
         String result = "";
-
         result = (String) node.m.accept(this, data);
         if (node.mlist != null) {
             result += (String) node.mlist.accept(this, data);
@@ -692,9 +724,20 @@ public class CodeGen_Visitor implements Visitor {
     public Object visit(NewArray node, Object data){ 
         // not in MiniC
         Exp e=node.e;
-        node.e.accept(this, data);
+        String sizeCode = (String) node.e.accept(this, data);
 
-        return "# NewArray not implemented\n";
+        String result = sizeCode + 
+                        "# new array:"+node.accept(ppVisitor,0)+"\n"+
+                        "popq %r10\n" + 
+                        "movq %r10, %rdi\n"+
+                        "popq %rdi\n" + 
+                        "incq %rdi\n"+
+                        "shlq %3, %rdi\n"+
+                        "callq -malloc\n" +
+                        "movq %r10, (%rdx)\n" +
+                        "pushq %rdx\n";
+
+        return result;
     }
 
 
