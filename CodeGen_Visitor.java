@@ -112,7 +112,7 @@ public class CodeGen_Visitor implements Visitor {
         String result = ecode + 
                         "# "+node.accept(ppVisitor,0)+"\n" + 
                         "popq %rax\n" +
-                        "movq (%rax,,) %r8\n" +
+                        "movq (%rax),%r8\n" +
                         "pushq %r8\n";
         return result; 
     } 
