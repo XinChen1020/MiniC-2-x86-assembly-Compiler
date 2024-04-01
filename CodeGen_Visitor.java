@@ -3,8 +3,14 @@ import java.util.HashMap;
 
 
 /*
+ * PA5a:
  * Video 1:https://brandeis.zoom.us/rec/share/DuhkCtewos3QgU8SUJpxNo2rL7aO7yKAS065cMb-gpvZmRAh2sT6RkWuEwYZpabD.EYZHg414sU9ZO5No?startTime=1711729019000
  * Video 2:https://brandeis.zoom.us/rec/share/DuhkCtewos3QgU8SUJpxNo2rL7aO7yKAS065cMb-gpvZmRAh2sT6RkWuEwYZpabD.EYZHg414sU9ZO5No?startTime=1711729494000
+ * 
+ * PA5b:
+ * Video 1:https://brandeis.zoom.us/rec/share/2-ijCtxgQQGagEYazUMSJUKa9xev2O2k28cVYAaA37s0nRMCZQfVDReMhq0icLJN.CCxSlFRw4BlVx36N?startTime=1711949247000
+ * Video 2:https://brandeis.zoom.us/rec/share/2-ijCtxgQQGagEYazUMSJUKa9xev2O2k28cVYAaA37s0nRMCZQfVDReMhq0icLJN.CCxSlFRw4BlVx36N?startTime=1711949481000
+ * 
  * Team: Xin Chen
  */
 
@@ -88,7 +94,7 @@ public class CodeGen_Visitor implements Visitor {
             
             e1code
             + e2code
-            + "#"+node.accept(ppVisitor,0)+"\n"
+            + "# "+node.accept(ppVisitor,0)+"\n"
             + "popq %rax\n"
             + "popq %rcx\n"
             + "incq %rcx\n"
@@ -104,7 +110,7 @@ public class CodeGen_Visitor implements Visitor {
         String ecode = (String) node.e.accept(this, data);
 
         String result = ecode + 
-                        "#"+node.accept(ppVisitor,0)+"\n" + 
+                        "# "+node.accept(ppVisitor,0)+"\n" + 
                         "popq %rax\n" +
                         "movq (%rax,,) %r8\n" +
                         "pushq %r8\n";
@@ -122,6 +128,7 @@ public class CodeGen_Visitor implements Visitor {
                         e1code +
                         e2code + 
                         "popq %rcx\n" +
+                        "incq %rcx\n" +
                         "popq %rax\n" +
                         "movq (%rax,%rcx,8), %rax\n" +
                         "pushq %rax\n";
@@ -142,7 +149,7 @@ public class CodeGen_Visitor implements Visitor {
         String result = 
             
             expCode
-            + "#"+node.accept(ppVisitor,0)+"\n"
+            + "# "+node.accept(ppVisitor,0)+"\n"
             + "popq %rax\n"
             + "movq %rax, "+location+"\n";
         
@@ -729,9 +736,9 @@ public class CodeGen_Visitor implements Visitor {
         String result = sizeCode + 
                         "# new array:"+node.accept(ppVisitor,0)+"\n"+
                         "popq %r8\n" + 
-                        "movq %r8, %rax\n"+
-                        "incq %rax\n"+
-                        "shlq $3, %rdx\n"+
+                        "movq %r8, %rdi\n"+
+                        "incq %rdi\n"+
+                        "shlq $3, %rdi\n"+
                         "callq _malloc\n" +
                         "movq %r8, (%rax)\n" +
                         "pushq %rax\n";
