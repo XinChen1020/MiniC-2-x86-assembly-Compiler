@@ -1,7 +1,6 @@
 #!/bin/bash
 java -classpath javacc.jar javacc PA5.jj
 javac PA5.java
-javac CodeGen_Visitor.java
+javac AST_Visitor.java
 echo "compiled java files"
-java PA5 < tests/demo_while.c > tests/demo_while.s
-cd tests; gcc demo_while.s print.s -o demo_while; ./demo_while
+java PA5 < tests/demo_while.c 

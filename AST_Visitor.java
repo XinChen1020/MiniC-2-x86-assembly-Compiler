@@ -26,6 +26,15 @@ import syntaxtree.*;
      return s.substring(s.lastIndexOf('.')+1);
    }
 
+   public Object visit(Equals node, Object data){
+          System.out.println(indentString() + getClassName(node));
+          ++indent;
+          node.e1.accept(this,data);
+          node.e2.accept(this,data);
+          --indent;
+          return data;
+   }
+
    public Object visit(Program node, Object data){
         System.out.println(indentString() + getClassName(node));
         ++indent;

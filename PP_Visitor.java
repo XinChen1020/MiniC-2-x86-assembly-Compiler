@@ -16,7 +16,12 @@ import syntaxtree.*;
         }
         return sb.toString();
    }
-
+   public Object visit(Equals node, Object data){
+     int indent = 0; // no indentation for expressions
+     String e1 = (String) node.e1.accept(this,indent);
+     String e2 = (String) node.e2.accept(this,indent);
+     return e1+" == " + e2;
+   }
    public Object visit(Program node, Object data){
      return null;
    }
@@ -221,7 +226,10 @@ import syntaxtree.*;
    }
 
    public Object visit(Not node, Object data){
-     return null;
+     int indent = 0; 
+     String s = (String) node.e.accept(this,indent);
+     //--indent;
+     return "! " + s;
    }
    public Object visit(Identifier node, Object data){
 

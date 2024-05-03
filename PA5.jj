@@ -24,17 +24,17 @@ public class PA5 {
     try {
       MethodDeclList n = t.Start();
 
-/* uncomment this only for PA4a 
+/* uncomment this only for PA4a */
       System.out.println("\n\nPretty Printing the Abstract Syntax Tree");
       Visitor v1 = new AST_Visitor();  // pretty prints the Abstract Syntax Tree
       n.accept(v1, 0);
-*/
+
 
 /* uncomment this only for PA4b
       System.out.println("\n\nPretty Print the Program");
       Visitor v2 = new PP_Visitor();  // pretty prints the PA5 program
       String s = (String) n.accept(v2, 0);
-      System.out.println("#include <stdio.h>\n#include <stdbool.h>\nvoid print(int n){printf(\"%10d\\n\",n);}");
+      
       System.out.println(s);
 */
 
@@ -53,14 +53,14 @@ public class PA5 {
       System.out.println(v4.num_errors+" type errors found");
 */
 
-/* uncomment this only for PA5 */
+/* uncomment this only for PA5 
       //System.out.println("\n\nCode Generation");
       CodeGen_Visitor v5 = new CodeGen_Visitor();
       String result = (String) n.accept(v5,"");
       System.out.println(result);
 
       //System.out.println("\n\nDone!");
-
+*/
     } catch (Exception e) {
       System.out.println("Oops.");
       System.out.println(e.getMessage());
@@ -103,6 +103,7 @@ TOKEN:
 |  <LONG:       "long">
 |  <MALLOC:       "malloc">
 |  <SIZEOF:       "sizeof">
+|  <EQUALS:       "==">
 |  <THIS:       "this">
 |  <NEW:        "new">
 |  <BANG:       "!">
@@ -110,7 +111,7 @@ TOKEN:
 |  <SEMICOLON:  ";">
 |  <COMMA:      ",">
 |  <DOT:        ".">
-|  <EQUALS:     "=">
+|  <EQUAL:     "=">
 |  <AND:        "&&">
 |  <LT:         "<">
 |  <GT:         ">">
@@ -296,7 +297,7 @@ Statement Statement() :
   {return(new Print(e1));}
 
   |
-  LOOKAHEAD(2) t=<ID> <EQUALS> e1=Exp() <SEMICOLON> 
+  LOOKAHEAD(2) t=<ID> <EQUAL> e1=Exp() <SEMICOLON> 
   {return(new Assign(new Identifier(t.image),e1));}
 
   |
@@ -305,7 +306,7 @@ Statement Statement() :
    {return(new While(e1, s1)); }
   |
 
-  t = <ID> <LBRACKET> e1 = Exp() <RBRACKET> <EQUALS> e2 = Exp() <SEMICOLON>
+  t = <ID> <LBRACKET> e1 = Exp() <RBRACKET> <EQUAL> e2 = Exp() <SEMICOLON>
   {return (new ArrayAssign(new Identifier(t.image),e1,e2));}
 
 }
@@ -314,11 +315,20 @@ Statement Statement() :
 Exp Exp():
 {Exp a,b;}
 { 
-   a=Exp4() 
-  (LOOKAHEAD(2) <AND> b=Exp4() {a = new And(a,b);})* 
+   a=Exp3() 
+  (LOOKAHEAD(2) <AND> b=Exp3() {a = new And(a,b);})* 
   {return(a);}
 
 
+
+}
+
+Exp Exp3():
+{Exp a,b;}
+{
+  a=Exp4() 
+  (LOOKAHEAD(2) <EQUALS> b=Exp4() {a = new Equals(a,b);})* 
+  {return(a);}
 
 }
 

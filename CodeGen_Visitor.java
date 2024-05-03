@@ -60,6 +60,39 @@ public class CodeGen_Visitor implements Visitor {
     private String[] regFormals= //registers for first six formals...
         {"%rdi","%rsi","%rdx","%rcx","%r8","%r9"}; 
 
+    public Object visit(Equals node, Object data){ 
+        /* We implement this in an inefficient but simple way.
+         * where we evaluate the two expressions in A<B
+         * and push them into the stack as values "a" and "b"
+         * then we do a comparison of "a" and "b"
+         * and if "a"<"b" we push 1 onto the stack, else we push 0
+         * So the result of LessThan is either 1 (if true) or 0 (if false)
+         * This is what C does, it treats 0 as False and nonzero as True
+         */
+        Exp e1=node.e1;
+        Exp e2=node.e2;
+        String e1Code = (String) node.e1.accept(this, data);
+        String e2Code = (String) node.e2.accept(this, data);
+        String label1 = "L"+labelNum;
+        labelNum += 1;
+        String label2 = "L"+labelNum;
+        labelNum += 1;
+
+        return 
+         "# "+node.accept(ppVisitor, data)+"\n"
+         + e1Code
+         + e2Code
+         + "# compare rdx==rax and push 1 on stack if true, 0 else\n"
+         + "popq %rdx\n"      // pop 2nd expr value B into rdx
+         + "popq %rax\n"      // pop 1st expr value A into rax
+         + "cmpq %rdx, %rax\n"// compare the two values
+         + "je "+label1+"\n" // if  A == B jump to label1
+         + "pushq $0\n"       // otherwise A != B, so push 0 on stack
+         + "jmp "+label2+"\n" // and jump to the end of this code
+         + label1+":\n"       // in this case, A == B, so
+         + "pushq $1\n"       // push 1 on stack
+         + label2+":\n" ;      // both branches end up here
+    }
 
     public Object visit(And node, Object data){ 
         // not in MiniC

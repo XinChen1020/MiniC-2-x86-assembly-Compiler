@@ -30,7 +30,7 @@ int test(int a, int b, int c) {
     if (equal(a,b)) {
         d=0;
     }
-    else if ((a<b) && !(c<b)){
+    else if ((a<b) == !(c<b)){
         d=111;
     } else if (!(a<b)){
         d=222;
@@ -43,7 +43,7 @@ int test(int a, int b, int c) {
     return d;
 }
 
-int main(int x){
+int main(){
     int c;
     c=20;
     c=fibs(10);
